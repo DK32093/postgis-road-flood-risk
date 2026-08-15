@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
-echo "----------------------------------------"
+echo "---------------------------------------"
 echo "creating postgis_road_flood_risk database"
-echo "----------------------------------------"
+echo "---------------------------------------"
 
 # Connection parameters (local defaults)
 PGUSER=$(whoami)
