@@ -4,8 +4,7 @@ A PostGIS‑driven geospatial workflow that builds a hex‑grid flood‑risk sur
 
 <img src="docs/Hex_exhibit.png" width="700">
 
-### **View the [interactive map here](https://dk32093.github.io/postgis-road-flood-risk/hex_2km_avg_road_hydro_risk_map.html
-).**
+### **View the [interactive map here](https://dk32093.github.io/postgis-road-flood-risk/hex_2km_avg_road_hydro_risk_map.html).**
 
 ## Workflow
 
