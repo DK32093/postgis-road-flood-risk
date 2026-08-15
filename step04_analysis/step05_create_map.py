@@ -77,4 +77,4 @@ GeoJsonTooltip(
 
 folium.LayerControl().add_to(m)
 
-m.save("map/hex_2km_avg_road_hydro_risk_map.html")
+m.save("docs/hex_2km_avg_road_hydro_risk_map.html")

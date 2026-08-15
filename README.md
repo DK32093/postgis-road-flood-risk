@@ -2,9 +2,9 @@
 
 A PostGIS‑driven geospatial workflow that builds a hex‑grid flood‑risk surface by integrating road geometry, hydrology proximity metrics, and terrain features into a reproducible spatial analysis pipeline.
 
-<img src="map/Hex_exhibit.png" width="700">
+<img src="docs/Hex_exhibit.png" width="700">
 
-### **View the [interactive map here](map/hex_2km_avg_road_hydro_risk_map.html).**
+### **View the [interactive map here](docs/hex_2km_avg_road_hydro_risk_map.html).**
 
 ## Workflow
 
