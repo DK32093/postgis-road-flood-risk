@@ -1,0 +1,100 @@
+=== Validation run: Sat Aug 15 12:12:07 EDT 2026 ===
+
+--- Validating State Boundaries ---
+-rw-r--r-- 1 dylan dylan 11K Aug  2 11:40 data/raw/NE_state_boundaries.shp
+Layer name: NE_state_boundaries
+Feature count: 6
+Extent: (-73.723015, 40.991860) - (-66.987022, 47.462995)
+
+--- Validating OSM Northeast PBF ---
+-rw-r--r-- 1 dylan dylan 1.7G Aug  1 11:22 data/raw/osm_roads_northeast.osm.pbf
+File:
+  Name: data/raw/osm_roads_northeast.osm.pbf
+  Format: PBF
+  Compression: none
+  Size: 1788033542
+Header:
+  Bounding boxes:
+    (-80.522747,38.742866,-66.87164,47.462219)
+  With history: no
+  Options:
+    generator=osmium/1.16.0
+    osmosis_replication_base_url=https://download.geofabrik.de/north-america/us-northeast-updates
+    osmosis_replication_sequence_number=4867
+    osmosis_replication_timestamp=2026-07-31T20:21:56Z
+    pbf_dense_nodes=true
+    pbf_optional_feature_0=Sort.Type_then_ID
+    sorting=Type_then_ID
+    timestamp=2026-07-31T20:21:56Z
+
+--- Validating NHD ---
+-rw-r--r-- 1 dylan dylan 110M Aug  1 12:13 data/raw/nhd_new_england.zip
+Total files in ZIP: 339
+Number of .gdbtable files: 86
+Layer: NHDFlowline
+  [OK] Layer exists
+  Geometry type: 3D
+  Feature count: 41917
+
+Layer: NHDWaterbody
+  [OK] Layer exists
+  Geometry type: 3D
+  Feature count: 8752
+
+
+--- Validating DEM tiles ---
+Number of DEM tiles found: 6
+-rw-r--r-- 1 dylan dylan 284M Aug  2 12:14 data/raw/USGS30m_NE_tile_0.tif
+-rw-r--r-- 1 dylan dylan 126M Aug  2 12:15 data/raw/USGS30m_NE_tile_1.tif
+-rw-r--r-- 1 dylan dylan 4.2M Aug  2 12:16 data/raw/USGS30m_NE_tile_2.tif
+-rw-r--r-- 1 dylan dylan 226M Aug  2 12:18 data/raw/USGS30m_NE_tile_3.tif
+-rw-r--r-- 1 dylan dylan 268M Aug  2 12:21 data/raw/USGS30m_NE_tile_4.tif
+-rw-r--r-- 1 dylan dylan 270M Aug  2 12:23 data/raw/USGS30m_NE_tile_5.tif
+
+ - Running gdalinfo on first tile: data/raw/USGS30m_NE_tile_0.tif
+
+Driver: GTiff/GeoTIFF
+Files: data/raw/USGS30m_NE_tile_0.tif
+       data/raw/USGS30m_NE_tile_0.tif.aux.xml
+Size is 8083, 11648
+Coordinate System is:
+GEOGCRS["NAD83",
+    DATUM["North American Datum 1983",
+        ELLIPSOID["GRS 1980",6378137,298.257222101004,
+            LENGTHUNIT["metre",1]]],
+    PRIMEM["Greenwich",0,
+        ANGLEUNIT["degree",0.0174532925199433]],
+    CS[ellipsoidal,2],
+        AXIS["geodetic latitude (Lat)",north,
+            ORDER[1],
+            ANGLEUNIT["degree",0.0174532925199433]],
+        AXIS["geodetic longitude (Lon)",east,
+            ORDER[2],
+            ANGLEUNIT["degree",0.0174532925199433]],
+    ID["EPSG",4269]]
+Data axis to CRS axis mapping: 2,1
+Origin = (-73.723054705341241,44.227499681806059)
+Pixel Size = (0.000277777780000,-0.000277777780000)
+Metadata:
+  AREA_OR_POINT=Area
+Image Structure Metadata:
+  COMPRESSION=DEFLATE
+  INTERLEAVE=BAND
+Corner Coordinates:
+Upper Left  ( -73.7230547,  44.2274997) ( 73d43'23.00"W, 44d13'39.00"N)
+Lower Left  ( -73.7230547,  40.9919441) ( 73d43'23.00"W, 40d59'31.00"N)
+Upper Right ( -71.4777769,  44.2274997) ( 71d28'40.00"W, 44d13'39.00"N)
+Lower Right ( -71.4777769,  40.9919441) ( 71d28'40.00"W, 40d59'31.00"N)
+Center      ( -72.6004158,  42.6097219) ( 72d36' 1.50"W, 42d36'35.00"N)
+Band 1 Block=512x512 Type=Float32, ColorInterp=Gray
+  Min=-1.500 Max=1409.365 
+  Minimum=-1.500, Maximum=1409.365, Mean=256.615, StdDev=199.680
+  NoData Value=-999999
+  Metadata:
+    STATISTICS_APPROXIMATE=YES
+    STATISTICS_MAXIMUM=1409.365234375
+    STATISTICS_MEAN=256.61497016141
+    STATISTICS_MINIMUM=-1.5
+    STATISTICS_STDDEV=199.67974414951
+    STATISTICS_VALID_PERCENT=100
+
