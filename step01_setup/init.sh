@@ -5,7 +5,7 @@ echo "---------------------------------------"
 echo "creating postgis_road_flood_risk database"
 echo "---------------------------------------"
 
-# Connection parameters (local defaults)
+# Connection parameters
 PGUSER=$(whoami)
 PGDATABASE=postgres
 
