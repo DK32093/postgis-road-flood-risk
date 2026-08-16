@@ -1,10 +1,10 @@
 # postgis-road-flood-risk
 
-A PostGIS‑driven geospatial workflow that builds a hex‑grid flood‑risk surface by integrating road geometry, hydrology proximity metrics, and terrain features into a reproducible spatial analysis pipeline.
+A PostGIS‑driven geospatial workflow that builds a hex‑grid flood‑risk surface by integrating road geometry, hydrology proximity metrics, and terrain features into a reproducible spatial analysis pipeline of more than 27.6 million road segments.
 
 <img src="docs/Hex_exhibit.png" width="700">
 
-*2-kilometer hex grid summerizing average risk scores from more than 27.6 million road segments across New England*
+*2-kilometer hex grid summarizing average flood-risk scores from more than 27.6 million road segments across New England*
 
 ### **View the [interactive map here](https://dk32093.github.io/postgis-road-flood-risk/hex_2km_avg_road_hydro_risk_map.html).**
 
@@ -22,7 +22,9 @@ This project follows an end‑to‑end PostGIS geospatial engineering workflow, 
    - State boundary polygons  
 
 3. **Ingest all datasets into PostGIS**  
-   - Use `osm2pgsql`, `raster2pgsql`, and GDAL utilities to load, validate, and index each dataset.
+   - Use `osm2pgsql` for OSM roads
+   - Use `ogr2ogr` and `shp2pgsql` for vector hydrology and boundaries
+   - Use `gdalwarp` + `raster2pgsql` to reproject and ingest USGS DEM tiles into PostGIS
 
 4. **Prepare and clean spatial tables**  
    - Filter roads to relevant classes  
@@ -102,11 +104,6 @@ This project was developed and tested on **WSL Ubuntu 24.04**
 - Folium
 - psycopg2-binary
 - python-dotenv
-
-### Tools
-- **osm2pgsql**: ingestion of OSM road data
-- **osmium-tool**: validation and extraction of OSM files
-- **raster2pgsql**: ingestion of USGS DEM tiles
 
 ## Data Sources
 - OpenStreetMap roads data via GEOFABRIK: https://download.geofabrik.de/north-america/us-northeast.html
