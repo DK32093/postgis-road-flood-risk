@@ -2,11 +2,18 @@
 
 A PostGIS‑driven geospatial workflow that builds a hex‑grid flood‑risk surface by integrating road geometry, hydrology proximity metrics, and terrain features into a reproducible spatial analysis pipeline of more than 27.6 million road segments.
 
+### **View the [interactive map here](https://dk32093.github.io/postgis-road-flood-risk/hex_2km_avg_road_hydro_risk_map.html).**
+
 <img src="docs/Hex_exhibit.png" width="700">
 
 *2-kilometer hex grid summarizing average flood-risk scores from more than 27.6 million road segments across New England*
 
-### **View the [interactive map here](https://dk32093.github.io/postgis-road-flood-risk/hex_2km_avg_road_hydro_risk_map.html).**
+
+<img src="docs/Validation.png" width="700">
+
+*Interactive drill-down maps provide local context around high-risk hotspots by displaying road-level flood risk scores, nearby hydrologic features, and terrain conditions.*
+
+*The example shown above focuses on a hotspot in northern Maine where roads identified as high relative flood risk occur near a documented flood event caused by an Aroostook River ice jam ([News article](https://thecounty.me/2025/03/21/caribou/ice-jam-along-aroostook-river-is-flooding-several-county-towns/).*)
 
 ## Workflow
 
