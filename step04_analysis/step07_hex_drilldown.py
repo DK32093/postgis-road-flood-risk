@@ -1,31 +1,24 @@
 import geopandas as gpd
 import folium
-from folium.features import GeoJsonTooltip
 from sqlalchemy import create_engine, text
-import tempfile
-import rasterio
 import numpy as np
 from matplotlib import cm
 from matplotlib import colors
 from folium.raster_layers import ImageOverlay
-from pyproj import Transformer
 from rasterio.transform import from_origin
 from rasterio.warp import reproject
 from rasterio.warp import calculate_default_transform
 from rasterio.enums import Resampling
 
-# ============================================================
-# CONFIG
-# ============================================================
-
+# Choose target hex ID
 HEX_ID = 27356
-
 OUTPUT_HTML = f"docs/hex_{HEX_ID}_drilldown.html"
 
 engine = create_engine(
     "postgresql://dylan@localhost/postgis_road_flood_risk"
 )
 
+# Style function for roads based on hydro risk score using quantiles
 def road_color(score):
 
     if score <= q20:
@@ -43,10 +36,8 @@ def road_color(score):
     else:
         return "#99000d"
 
-# ============================================================
-# TARGET HEX
-# ============================================================
 
+# Get target hex metrics from database
 target_hex = gpd.read_postgis(
     f"""
     SELECT
@@ -85,9 +76,7 @@ center = [
 
 target_hex_wgs84 = target_hex.to_crs(4326)
 
-# ============================================================
-# TARGET HEX + NEIGHBORS (STUDY AREA)
-# ============================================================
+# Get target hex and neighboring hexes to display the surrounding area
 
 study_hexes = gpd.read_postgis(
     f"""
@@ -116,12 +105,7 @@ study_hexes_wgs84 = study_hexes.to_crs(4326)
 
 print(f"Study Hex Count: {len(study_hexes)}")
 
-
-
-# ============================================================
-# ROADS
-# ============================================================
-
+# Get roads within the target hex and neighboring hexes
 roads = gpd.read_postgis(
     f"""
     WITH study_area AS (
@@ -176,15 +160,13 @@ roads = gpd.read_postgis(
 
 roads = roads.to_crs(4326)
 
+# Calculate quantiles for hydro risk score to use in legend and styling
 q20 = roads["hydro_risk_score"].quantile(0.20)
 q40 = roads["hydro_risk_score"].quantile(0.40)
 q60 = roads["hydro_risk_score"].quantile(0.60)
 q80 = roads["hydro_risk_score"].quantile(0.80)
 
-# ============================================================
-# FLOWLINES
-# ============================================================
-
+# Get flowlines within the target hex and neighboring hexes
 flowlines = gpd.read_postgis(
     f"""
     WITH study_area AS (
@@ -232,10 +214,7 @@ flowlines = gpd.read_postgis(
 
 flowlines = flowlines.to_crs(4326)
 
-# ============================================================
-# WATERBODIES
-# ============================================================
-
+# Get waterbodies within the target hex and neighboring hexes
 waterbodies = gpd.read_postgis(
     f"""
     WITH study_area AS (
@@ -282,12 +261,7 @@ waterbodies = gpd.read_postgis(
 
 waterbodies = waterbodies.to_crs(4326)
 
-# ============================================================
-# SLOPE RASTER
-# ============================================================
-
-import ast
-
+# Get slope raster values for the target hex and neighboring hexes
 with engine.connect() as conn:
 
    result = conn.execute(text(f"""
@@ -352,33 +326,27 @@ with engine.connect() as conn:
 
 row = result.fetchone()
 
-
+# Get slope raster metadata and values
 slope_values = row[0]
-
 xmin = row[1]
 ymax = row[2]
-
 width = row[3]
 height = row[4]
-
 pixel_width = row[5]
 pixel_height = row[6]
 
-# Convert PostgreSQL array string to NumPy
+# Convert slope array string to NumPy
 slope_array = np.array(
     slope_values,
     dtype=float
 )
 
-# PostGIS nodata value
+# nodata value
 slope_array[
     slope_array == -999999.0
 ] = np.nan
 
-# ============================================================
-# REPROJECT RASTER FROM EPSG:5070 -> EPSG:4326
-# ============================================================
-
+# Reproject slope raster from EPSG:5070 to EPSG:4326 for folium overlay
 src_transform = from_origin(
     xmin,
     ymax,
@@ -428,17 +396,9 @@ reproject(
 
 slope_array = reprojected_slope
 
-print("Reprojected shape:", slope_array.shape)
-
-vmin = np.nanpercentile(
-    slope_array,
-    2
-)
-
-vmax = np.nanpercentile(
-    slope_array,
-    98
-)
+# Clip slope values to 2nd and 98th percentiles for color normalization
+vmin = np.nanpercentile(slope_array, 2)
+vmax = np.nanpercentile(slope_array, 98)
 
 norm = colors.Normalize(
     vmin=vmin,
@@ -450,18 +410,14 @@ slope_rgba = cm.viridis(
 )
 
 # transparent nodata
-
 slope_rgba[..., 3] = np.where(
     np.isnan(slope_array),
     0,
     1.0
 )
 
-
 # Raster bounds from metadata query
-
 left = dst_transform.c
-
 top = dst_transform.f
 
 right = left + (
@@ -477,10 +433,7 @@ slope_bounds = [
     [top, right]
 ]
 
-# ============================================================
-# MAP
-# ============================================================
-
+# Map
 m = folium.Map(
     location=center,
     zoom_start=13,
@@ -488,10 +441,7 @@ m = folium.Map(
     tiles="OpenStreetMap"
 )
 
-# ============================================================
-# SLOPE IMAGE OVERLAY
-# ============================================================
-
+# Add slope
 ImageOverlay(
     image=slope_rgba,
     bounds=slope_bounds,
@@ -499,10 +449,7 @@ ImageOverlay(
     name="Slope Raster"
 ).add_to(m)
 
-# ============================================================
-# SUMMARY PANEL
-# ============================================================
-
+# Add hex summary HTML
 summary_html = f"""
 <div style="
 position: fixed;
@@ -519,7 +466,7 @@ font-size:13px;
 <b>Target Hex Summary</b><br><br>
 
 <b>Hex ID:</b> {HEX_ID}<br>
-<b>Parent Avg Risk:</b> {summary.avg_hydro_risk:.2f}<br>
+<b>Avg Risk:</b> {summary.avg_hydro_risk:.2f}<br>
 <b>Avg Flowline Dist:</b> {summary.avg_dist_flowline:.0f} m<br>
 <b>Avg Waterbody Dist:</b> {summary.avg_dist_waterbody:.0f} m<br>
 <b>Avg Elevation:</b> {summary.avg_elevation:.0f} m<br>
@@ -532,6 +479,7 @@ m.get_root().html.add_child(
     folium.Element(summary_html)
 )
 
+# Create legend for hydro risk score
 legend_html = f"""
 <div style="
 position: fixed;
@@ -579,6 +527,7 @@ m.get_root().html.add_child(
     folium.Element(legend_html)
 )
 
+# Create legend for slope raster
 slope_legend_html = f"""
 <div style="
 position: fixed;
@@ -625,10 +574,7 @@ m.get_root().html.add_child(
     folium.Element(slope_legend_html)
 )
 
-# ============================================================
-# PARENT HEX
-# ============================================================
-
+# Add target hex outline
 parent_layer = folium.FeatureGroup(
     name="Parent 2km Hex",
     show=True
@@ -645,35 +591,7 @@ folium.GeoJson(
 
 parent_layer.add_to(m)
 
-# ============================================================
-# NEIGHBOR HEXES
-# ============================================================
-
-# neighbor_layer = folium.FeatureGroup(
-#     name="Neighbor 2km Hexes",
-#     show=True
-# )
-
-# neighbors_only = study_hexes_wgs84[
-#     study_hexes_wgs84["id"] != HEX_ID
-# ]
-
-# folium.GeoJson(
-#     neighbors_only,
-#     style_function=lambda x: {
-#         "color": "#222222",
-#         "weight": 2,
-#         "fillOpacity": 0,
-#         "dashArray": "5,5"
-#     }
-# ).add_to(neighbor_layer)
-
-# neighbor_layer.add_to(m)
-
-# ============================================================
-# FLOWLINES
-# ============================================================
-
+# Add flowlines to map
 flowline_layer = folium.FeatureGroup(
     name="Flowlines",
     show=True
@@ -689,12 +607,7 @@ folium.GeoJson(
 
 flowline_layer.add_to(m)
 
-
-
-# ============================================================
-# WATERBODIES
-# ============================================================
-
+# Add waterbodies to map
 water_layer = folium.FeatureGroup(
     name="Waterbodies",
     show=True
@@ -712,15 +625,13 @@ folium.GeoJson(
 
 water_layer.add_to(m)
 
-# ============================================================
-# ROADS
-# ============================================================
-
+# Add roads to map
 road_layer = folium.FeatureGroup(
     name="Roads",
     show=True
 )
 
+# Style roads with a thicker base layer for better visibility
 folium.GeoJson(
     roads,
     style_function=lambda feature: {
@@ -730,6 +641,7 @@ folium.GeoJson(
     }
 ).add_to(road_layer)
 
+# Add roads with color based on hydro risk score and tooltip
 folium.GeoJson(
     roads,
     style_function=lambda feature: {
@@ -764,10 +676,7 @@ folium.GeoJson(
 
 road_layer.add_to(m)
 
-# ============================================================
-# CONTROLS
-# ============================================================
-
+# Add layer control and save map to HTML
 folium.LayerControl(collapsed=False).add_to(m)
 m.save(OUTPUT_HTML)
 print(f"Saved: {OUTPUT_HTML}")

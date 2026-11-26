@@ -54,6 +54,7 @@ This project follows an end‑to‑end PostGIS geospatial engineering workflow, 
    - State boundary overlays  
    - Interactive tooltips for all hex attributes  
    - Export to a standalone HTML map
+   - Generate drilldown HTML maps of target hexes displaying underlying data
 
 ## Scoring Approach
 
